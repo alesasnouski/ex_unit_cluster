@@ -19,7 +19,7 @@ defmodule ExUnitCluster.Manager do
   end
 
   @spec start_node(pid()) :: node()
-  def start_node(pid), do: GenServer.call(pid, :start_node)
+  def start_node(pid), do: GenServer.call(pid, :start_node, 15_000)
 
   @spec stop_node(pid(), node()) :: :ok | {:error, :not_found}
   def stop_node(pid, node), do: GenServer.call(pid, {:stop_node, node})
