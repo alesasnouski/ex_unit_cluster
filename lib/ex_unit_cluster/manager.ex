@@ -19,7 +19,7 @@ defmodule ExUnitCluster.Manager do
   end
 
   @spec start_node(pid()) :: node()
-  def start_node(pid), do: GenServer.call(pid, :start_node, 15_000)
+  def start_node(pid), do: GenServer.call(pid, :start_node, 60_000)
 
   @spec stop_node(pid(), node()) :: :ok | {:error, :not_found}
   def stop_node(pid, node), do: GenServer.call(pid, {:stop_node, node})
@@ -84,16 +84,16 @@ defmodule ExUnitCluster.Manager do
       end
     end
 
-    :peer.call(pid, Application, :ensure_all_started, [:mix])
+    :peer.call(pid, Application, :ensure_all_started, [:mix], 15_000)
     :peer.call(pid, Mix, :env, [Mix.env()])
 
     # We need to start :ex_unit to be able to compile the test file
     # It would be nice to avoid doing this compilation on every node started
-    :peer.call(pid, Application, :ensure_all_started, [:ex_unit])
+    :peer.call(pid, Application, :ensure_all_started, [:ex_unit], 15_000)
     :peer.call(pid, Code, :compile_file, [state.test_file])
 
     app = Mix.Project.config()[:app]
-    :peer.call(pid, Application, :ensure_all_started, [app])
+    :peer.call(pid, Application, :ensure_all_started, [app], 15_000)
 
     # We should make it configurable if we want to connect all the nodes
     # (if the application wants to form the cluster by itself)
